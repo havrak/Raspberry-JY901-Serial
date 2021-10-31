@@ -1,12 +1,13 @@
 #include "JY901_Serial.h"
 #include "JY901_Control.h"
+#include <chrono>
 
 CJY901::CJY901() {
-  lastTime = millis();
+	lastTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 }
 
-bool CJY901::attach(string device, int baud){
-	fd = serialOpen("/dev/ttyACM0",115200);
+bool CJY901::attach(string device){
+	fd = serialOpen(device.c_str(),9600);
 	if(fd<0) return false;
 	return true;
 }
@@ -14,6 +15,15 @@ bool CJY901::attach(string device, int baud){
 bool CJY901::attach(int fdn) {
   fd = fdn;
 	return true;
+}
+
+bool CJY901::changeBaudRate(int baud){
+	setBaudRate(baud);
+	serialClose(fd);
+	fd = serialOpen("/dev/ttyACM0",baud);
+	if(fd<0) return false;
+	return true;
+
 }
 
 bool CJY901::writeSerialData(unsigned char* data, int len){
@@ -85,7 +95,7 @@ bool CJY901::readSerialData(unsigned char data) {
       memcpy(&JY901_data.GPS_DOP, &rxBuffer[2], 8);
       break;  // GPS DOP
   }
-  lastTime = millis();  // last receive time
+	lastTime = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
   return true;
 }
 
@@ -245,7 +255,7 @@ double CJY901::getDOP(const char* str) {
   return 0;
 }  // getDOP()
 
-unsigned long CJY901::getLastTime() {
+milliseconds CJY901::getLastTime() {
   return lastTime;
 }  // get last receive time
 

@@ -3,20 +3,28 @@
 
 #include <wiringPi.h>
 #include <wiringSerial.h>
-#include <string.h>
 
+
+#include <cstring>
 #include <string>
+#include <chrono>
+
+using namespace std::chrono;
 
 using namespace std;
 
 class CJY901 {
+
  public:
   CJY901();                           // construct function
-	bool attach(string device, int baud);
+
+
+	bool attach(string device);
   bool attach(int fd);   							// bind serial connection
 	bool writeSerialData(unsigned char* data, int len);
   bool readSerialData(unsigned char data);  // process recieved data
   bool receiveSerialData(void);       // recieve data from serial port
+	bool changeBaudRate(int newBaud);
 
   /* ------------ (JY901 --> Host) functions ------------ */
   unsigned short getTime(const char*);  // get time
@@ -46,7 +54,7 @@ class CJY901 {
   double getGPSV();               // GPS speed
   double getQuater(const char*);  // get quaternion
   double getDOP(const char*);     // get GPS DOP
-  unsigned long getLastTime();    // get last receive time
+  milliseconds getLastTime();    // get last receive time
   short getAccRawX();           // get X-axis raw acceleration data
   short getAccRawY();           // get Y-axis raw acceleration data
   short getAccRawZ();           // get Z-axis raw acceleration data
@@ -159,7 +167,7 @@ class CJY901 {
  private:
   int fd = -1;
 
-  unsigned long lastTime;
+  milliseconds lastTime;
   unsigned char rxBuffer[12] = {0};
   unsigned char rxCnt = 0;
 
@@ -234,6 +242,4 @@ class CJY901 {
 
   } JY901_data;
 };
-
-extern CJY901 JY901;
 #endif
