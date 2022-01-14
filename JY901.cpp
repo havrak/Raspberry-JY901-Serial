@@ -53,11 +53,14 @@ bool CJY901::writeSerialData(unsigned char* data, int len)
 	return true;
 }
 
-void CJY901::writeI2CData(char* data)
+void CJY901::writeI2CData(char* data, int len)
 {
-	for (int i = 0; i < sizeof(data) / sizeof(data[0]); i++) {
+	cout << "Writing data" << endl;
+	for (int i = 0; i < len; i++) {
+		cout <<  static_cast<int>(data[i]) << " ";
 		wiringPiI2CWrite(fd, data[i]);
 	}
+	cout << endl;
 }
 
 bool CJY901::readSerialData(unsigned char data)
@@ -263,7 +266,7 @@ short CJY901::getD0Status()
 short CJY901::getD1Status()
 {
 	if (i2cmode)
-		JY901_data.dStatus.d1 = wiringPiI2CReadReg16(fd, JY901_D1Status);
+		JY901_data.dStatus.d1 = wiringPiI2CReadReg8(fd, JY901_D1Status);
 	return JY901_data.dStatus.d1;
 }
 short CJY901::getD2Status()
@@ -444,7 +447,7 @@ void CJY901::saveConf(char saveFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_SAVE, saveFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_SAVECONF[3] = saveFlag;
 		writeSerialData(JY901_SAVECONF, 5);
@@ -455,7 +458,7 @@ void CJY901::setCali(char caliFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_CALSW, caliFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_SETCALI[3] = caliFlag;
 		writeSerialData(JY901_SETCALI, 5);
@@ -483,7 +486,7 @@ void CJY901::autoCaliGyro(char gyroFlag) // note: no equivalent for i2c
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_GYROAUTOCALI, gyroFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_GYROAUTO[3] = gyroFlag;
 		writeSerialData(JY901_GYROAUTO, 5);
@@ -500,7 +503,7 @@ void CJY901::setReportRate(char rateFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_RRATE, rateFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 
 		JY901_RPTRT[3] = rateFlag;
@@ -512,7 +515,7 @@ void CJY901::setBaudRate(char baudFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_RRATE, baudFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_BAUDRT[3] = baudFlag;
 		writeSerialData(JY901_BAUDRT, 5);
@@ -527,7 +530,7 @@ void CJY901::setAXoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_AXOFFSET, JY901_ctrl.aoffset.xl, JY901_ctrl.aoffset.xh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		memcpy(&JY901_AXOFF[3], &JY901_ctrl.aoffset.xl, 2);
 		writeSerialData(JY901_AXOFF, 5);
@@ -537,7 +540,7 @@ void CJY901::setAYoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_AYOFFSET, JY901_ctrl.aoffset.yl, JY901_ctrl.aoffset.yh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		memcpy(&JY901_AYOFF[3], &JY901_ctrl.aoffset.yl, 2);
 		writeSerialData(JY901_AYOFF, 5);
@@ -547,7 +550,7 @@ void CJY901::setAZoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_AZOFFSET, JY901_ctrl.aoffset.zl, JY901_ctrl.aoffset.zh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		memcpy(&JY901_AZOFF[3], &JY901_ctrl.aoffset.zl, 2);
 		writeSerialData(JY901_AZOFF, 5);
@@ -558,7 +561,7 @@ void CJY901::setGXoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_GXOFFSET, JY901_ctrl.goffset.xl, JY901_ctrl.goffset.xh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,3);
 	} else {
 		memcpy(&JY901_GXOFF[3], &JY901_ctrl.goffset.xl, 2);
 		writeSerialData(JY901_GXOFF, 5);
@@ -568,7 +571,7 @@ void CJY901::setGYoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_GYOFFSET, JY901_ctrl.goffset.yl, JY901_ctrl.goffset.yh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,3);
 	} else {
 		memcpy(&JY901_GYOFF[3], &JY901_ctrl.goffset.yl, 2);
 		writeSerialData(JY901_GYOFF, 5);
@@ -578,7 +581,7 @@ void CJY901::setGZoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_GZOFFSET, JY901_ctrl.goffset.zl, JY901_ctrl.goffset.zh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,3);
 	} else {
 		memcpy(&JY901_GZOFF[3], &JY901_ctrl.goffset.zl, 2);
 		writeSerialData(JY901_GZOFF, 5);
@@ -589,7 +592,7 @@ void CJY901::setHXoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_HXOFFSET, JY901_ctrl.hoffset.xl, JY901_ctrl.hoffset.xh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,3);
 	} else {
 		memcpy(&JY901_HXOFF[3], &JY901_ctrl.hoffset.xl, 2);
 		writeSerialData(JY901_HXOFF, 5);
@@ -599,7 +602,7 @@ void CJY901::setHYoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_HYOFFSET, JY901_ctrl.hoffset.yl, JY901_ctrl.hoffset.yh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,3);
 	} else {
 		memcpy(&JY901_HYOFF[3], &JY901_ctrl.hoffset.yl, 2);
 		writeSerialData(JY901_HYOFF, 5);
@@ -609,7 +612,7 @@ void CJY901::setHZoffset()
 {
 	if (i2cmode) {
 		char cmd[3] = { JY901_HZOFFSET, JY901_ctrl.hoffset.zl, JY901_ctrl.hoffset.zh };
-		writeI2CData(cmd);
+		writeI2CData(cmd,3);
 	} else {
 		memcpy(&JY901_HZOFF[3], &JY901_ctrl.hoffset.zl, 2);
 		writeSerialData(JY901_HZOFF, 5);
@@ -620,7 +623,7 @@ void CJY901::setD0mode(char modeFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_D0MODE, modeFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_D0MODECONF[3] = modeFlag;
 		writeSerialData(JY901_D0MODECONF, 5);
@@ -630,7 +633,7 @@ void CJY901::setD1mode(char modeFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_D1MODE, modeFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_D1MODECONF[3] = modeFlag;
 		writeSerialData(JY901_D1MODECONF, 5);
@@ -640,7 +643,7 @@ void CJY901::setD2mode(char modeFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_D1MODE, modeFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_D2MODECONF[3] = modeFlag;
 		writeSerialData(JY901_D2MODECONF, 5);
@@ -650,7 +653,7 @@ void CJY901::setD3mode(char modeFlag)
 {
 	if (i2cmode) {
 		char cmd[2] = { JY901_D1MODE, modeFlag };
-		writeI2CData(cmd);
+		writeI2CData(cmd,2);
 	} else {
 		JY901_D3MODECONF[3] = modeFlag;
 		writeSerialData(JY901_D3MODECONF, 5);

@@ -174,7 +174,7 @@ class CJY901 {
   unsigned char rxCnt = 0;
 
 	bool writeSerialData(unsigned char* data, int len);
-	void writeI2CData(char* data);
+	void writeI2CData(char* data, int len);
 
   struct {
     struct {
