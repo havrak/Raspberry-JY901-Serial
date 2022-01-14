@@ -1,10 +1,11 @@
-#ifndef _JY901_SERIAL_H_
-#define _JY901_SERIAL_H_
+#ifndef _JY901_H_
+#define _JY901_H_
 
 #include <wiringPi.h>
 #include <wiringSerial.h>
+#include <wiringPiI2C.h>
 
-
+#include <iterator>
 #include <cstring>
 #include <string>
 #include <chrono>
@@ -18,10 +19,9 @@ class CJY901 {
  public:
   CJY901();                           // construct function
 
-
+	bool startI2C(int adress);
 	bool attach(string device);
   bool attach(int fd);   							// bind serial connection
-	bool writeSerialData(unsigned char* data, int len);
   bool readSerialData(unsigned char data);  // process recieved data
   bool receiveSerialData(void);       // recieve data from serial port
 	bool changeBaudRate(int newBaud);
@@ -66,15 +66,15 @@ class CJY901 {
   short getMagRawZ();           // get Z-axis raw magnetic field data
 
   /* ------------ (Host --> JY901) functions ------------ */
-  void saveConf(int);      // save configuration
-  void setCali(int);       // calibration mode
-  void setDir(int);        // set install direction
+  void saveConf(char);      // save configuration
+  void setCali(char);       // calibration mode
+  void setDir(char);        // set install direction
   void enterHiber();       // enter hibernation or wake
-  void changeALG(int);     // change algorithm
-  void autoCaliGyro(int);  // enable auto gyro calibration
+  void changeALG(char);     // change algorithm
+  void autoCaliGyro(char);  // enable auto gyro calibration
   void confReport();       // configure report contents
-  void setReportRate(int);
-  void setBaudRate(int);
+  void setReportRate(char);
+  void setBaudRate(char);
 
   void setAXoffset();
   void setAYoffset();
@@ -88,10 +88,10 @@ class CJY901 {
   void setHYoffset();
   void setHZoffset();
 
-  void setD0mode(int);
-  void setD1mode(int);
-  void setD2mode(int);
-  void setD3mode(int);
+  void setD0mode(char);
+  void setD1mode(char);
+  void setD2mode(char);
+  void setD3mode(char);
 
   void setD0PWMH();
   void setD1PWMH();
@@ -166,10 +166,15 @@ class CJY901 {
 
  private:
   int fd = -1;
+	int i2cadress = 0x50;
+	bool i2cmode = false;
 
   milliseconds lastTime;
   unsigned char rxBuffer[12] = {0};
   unsigned char rxCnt = 0;
+
+	bool writeSerialData(unsigned char* data, int len);
+	void writeI2CData(char* data);
 
   struct {
     struct {
