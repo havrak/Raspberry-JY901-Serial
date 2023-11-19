@@ -162,11 +162,10 @@ unsigned short CJY901::getTime(const char* str)
 
 double CJY901::getTemp()
 {
-	cout << "JY901 | getTemp | temp: " << JY901_data.mag.temperature << endl;
 	if (i2cmode)
 		JY901_data.mag.temperature = wiringPiI2CReadReg16(fd, JY901_TEMP);
-	return JY901_data.mag.temperature / 100.0; // are all the data(from mag acc gyro) same?
-} // TODO: may need further test
+	return JY901_data.mag.temperature / 100.0;
+} // getTemp() unit: degree(s) Celsius
 
 double CJY901::getAccX()
 {
